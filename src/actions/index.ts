@@ -1,10 +1,10 @@
 import { r2GeneratePDFCertificate } from '@/services/r2-generate-pdf-certificate'
-import { generateQRCodeUrl } from '@/utils/generate-qr-code-url'
 import { certificateRateLimit } from '@/services/rate-limit'
-import { getTicketByCode } from '@/services/tickettailor'
 import { redis } from '@/services/redis'
+import { getTicketByCode } from '@/services/tickettailor'
+import { generateQRCodeUrl } from '@/utils/generate-qr-code-url'
+import { z } from 'astro/zod'
 import { ActionError, defineAction } from 'astro:actions'
-import { z } from 'astro:schema'
 
 const CERTIFICATE_BASE_URL =
   import.meta.env.CERTIFICATE_BASE_URL ?? 'https://certificados.jsconf.es'
@@ -21,7 +21,6 @@ export const server = {
         'unknown'
 
       const { success } = await certificateRateLimit.limit(ip)
-
       if (!success) {
         throw new ActionError({
           code: 'TOO_MANY_REQUESTS',
@@ -39,7 +38,8 @@ export const server = {
       if (ticket == null) {
         throw new ActionError({
           code: 'NOT_FOUND',
-          message: 'No se encontró ningún ticket con ese código. Recuerda que es sensible a mayúsculas y minúsculas.',
+          message:
+            'No se encontró ningún ticket con ese código. Recuerda que es sensible a mayúsculas y minúsculas.',
         })
       }
 
